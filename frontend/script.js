@@ -1,6 +1,14 @@
 // API base URL - use relative path to work from any host
 const API_URL = '/api';
 
+// Theme toggle — runs immediately so there's no flash of wrong theme
+(function initTheme() {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+    }
+})();
+
 // Global state
 let currentSessionId = null;
 
@@ -17,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     courseTitles = document.getElementById('courseTitles');
     
     setupEventListeners();
+    setupThemeToggle();
     createNewSession();
     loadCourseStats();
 });
@@ -52,6 +61,29 @@ function setupEventListeners() {
     });
 }
 
+
+// Theme Toggle
+function setupThemeToggle() {
+    const btn = document.getElementById('themeToggle');
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        if (isLight) {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('theme', 'dark');
+            btn.setAttribute('aria-label', 'Alternar para tema claro');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+            btn.setAttribute('aria-label', 'Alternar para tema escuro');
+        }
+
+        // Brief spin animation on the icon
+        btn.classList.add('toggling');
+        btn.addEventListener('animationend', () => btn.classList.remove('toggling'), { once: true });
+    });
+}
 
 // Chat Functions
 async function sendMessage() {
